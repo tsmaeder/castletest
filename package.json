@@ -10,7 +10,9 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:castletest.showActiveDebugSession"
+    "onCommand:castletest.showActiveDebugSession",
+    "onCommand:castletest.dumpTask",    
+    "onCommand:castletest.readFile"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -18,6 +20,14 @@
       {
         "command": "castletest.showActiveDebugSession",
         "title": "Show Active Debug Session"
+      },
+      {
+        "command": "castletest.readFile",
+        "title": "Read File Contents Demo"
+      },
+      {
+        "command": "castletest.dumpTask",
+        "title": "Dump task info to console"
       }
     ]
   },
