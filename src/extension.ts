@@ -54,6 +54,43 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 		
 	}));
+
+	const writeEmitter = new vscode.EventEmitter<string>();
+	context.subscriptions.push(vscode.window.registerTerminalProfileProvider("extensionTerminalProfile", {
+		provideTerminalProfile: () => {
+			let line = '';
+			const pty = {
+				onDidWrite: writeEmitter.event,
+				open: () => writeEmitter.fire('Type and press enter to echo the text\r\n\r\n'),
+				close: () => { /* noop*/ },
+				handleInput: (data: string) => {
+					if (data === '\r') { // Enter
+						writeEmitter.fire(`\r\necho: "${line}"\r\n\n`);
+						line = '';
+						return;
+					}
+					if (data === '\x7f') { // Backspace
+						if (line.length === 0) {
+							return;
+						}
+						line = line.substr(0, line.length - 1);
+						// Move cursor backward
+						writeEmitter.fire('\x1b[D');
+						// Delete character
+						writeEmitter.fire('\x1b[P');
+						return;
+					}
+					line += data;
+					writeEmitter.fire(data);
+				}
+			};
+
+			return new vscode.TerminalProfile({
+				name: "Extension Terminal",
+				pty: pty
+			});
+		}
+	}));
 }
 
 // This method is called when your extension is deactivated
